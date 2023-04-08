@@ -2,18 +2,29 @@ package src
 
 import (
 	"math/rand"
+	"net/http"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func Main() {
 	e := echo.New()
 
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+		AllowCredentials: true,
+	}))
+
 	wConfig := &webauthn.Config{
-		RPDisplayName: "Test",                                      // Display Name for your site
-		RPID:          "go-webauthn.local",                         // Generally the FQDN for your site
-		RPOrigins:     []string{"https://login.go-webauthn.local"}, // The origin URLs allowed for WebAuthn requests
+		RPDisplayName: "Test CAT",                        // Display Name for your site
+		RPID:          "localhost",                       // Generally the FQDN for your site
+		RPOrigins:     []string{"http://localhost:3000"}, // The origin URLs allowed for WebAuthn requests
 	}
 
 	w, err := webauthn.New(wConfig)

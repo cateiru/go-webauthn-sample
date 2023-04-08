@@ -21,6 +21,7 @@ func (h *Handler) BeginCreateHandler(c echo.Context) error {
 	}
 
 	user := &User{
+		ID:          []byte(RandomString(20)),
 		Name:        name,
 		DisplayName: displayName,
 	}
