@@ -5,7 +5,7 @@ import {
   parseCreationOptionsFromJSON,
 } from "@github/webauthn-json/browser-ponyfill";
 
-const Register = () => {
+export const Register = () => {
   const toast = useToast();
   const [name, setName] = React.useState("");
 
@@ -98,5 +98,3 @@ const Register = () => {
     </Center>
   );
 };
-
-export default Register;

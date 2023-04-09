@@ -3,11 +3,11 @@ package src
 import "github.com/go-webauthn/webauthn/webauthn"
 
 type User struct {
-	ID          []byte
-	Name        string
-	DisplayName string
+	ID          []byte `json:"id"`
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name,omitempty"`
 
-	Credentials []webauthn.Credential
+	Credentials []webauthn.Credential `json:"-"`
 }
 
 func (u *User) WebAuthnID() []byte {

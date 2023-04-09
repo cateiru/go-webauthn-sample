@@ -1,12 +1,13 @@
 package src
 
 import (
-	"errors"
+	"net/http"
 
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/labstack/echo/v4"
 )
 
-var ErrUserNotFound = errors.New("user not found")
+var ErrUserNotFound = echo.NewHTTPError(http.StatusNotFound, "user not found")
 
 var Sessions = map[string]*webauthn.SessionData{}
 var Users = map[string]*User{}
@@ -33,4 +34,13 @@ func GetUser(name string) (*User, error) {
 		return nil, ErrUserNotFound
 	}
 	return u, nil
+}
+
+func GetUserById(id []byte) (*User, error) {
+	for _, u := range Users {
+		if string(u.ID) == string(id) {
+			return u, nil
+		}
+	}
+	return nil, ErrUserNotFound
 }
