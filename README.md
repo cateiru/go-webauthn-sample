@@ -1,38 +1,71 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# WebAuthn Sample
 
-## Getting Started
+## TL;DR
 
-First, run the development server:
+- バックエンドをGo、フロントエンドをNext.jsを使用してWebAuthnを使用した登録とログインが使用できるか検証するリポジトリ
+- Goでは、[`github.com/go-webauthn/webauthn`](https://github.com/go-webauthn/webauthn)を使用してWebAuthnの周りをいい感じに実装している
+- Next.jsでは[`@github/webauthn-json`](https://github.com/github/webauthn-json)を使用して便利に認証している
+
+## 起動
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# install deps
+go mod download
+pnpm i
+
+# Run
+go run .
 pnpm dev
+
+# Access to http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 登録フロー
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+URL: [`/register`](http://localhost:3000/register)
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant Client
+    participant Go Server
+    participant DB
+    User->>Client: パスキー登録ボタンを押す
+    Client->>+Go Server: `/begin_create`にChallengeをリクエスト
+    Go Server->>DB: セッションを保存
+    Go Server->>Client: Challengeを返す
+    Client->>Browser: パスキー登録リクエスト
+    Browser->>+User: ユーザのクレデンシャルをもらう
+    User-->>-Browser: パスキー登録
+    Browser->>Client: クレデンシャルもらう
+    Client->>Go Server: `/create`にクレデンシャル渡す
+    DB->>Go Server: セッションもらう
+    Go Server->>Go Server: 検証
+    Go Server->>-Client: 成功
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## ログインフロー
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Conditional UIを使用したログイン
 
-## Learn More
+- [Conditional UI](https://github.com/w3c/webauthn/wiki/Explainer:-WebAuthn-Conditional-UI)を使用すると、Input要素にフォーカスしたときでパスキーを登録していると候補が表示されます。
+- 執筆現在はドラフトなのでブラウザのサポート状況にムラがあります。
+- Google ChromeやSafariは対応しているが、Firefoxは対応していない。
+  - UAを見てFirefoxのときはボタンを生やすような実装にしています。
 
-To learn more about Next.js, take a look at the following resources:
+URL: `/login_auto`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+実装時のTips:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- ページロード時にサーバからチャレンジをもらい`navigator.credentials.get`を実行します。`get`は非同期関数であるため、ユーザがInput要素にフォーカスしてWebAuthnを使用する選択をするまで待機されます。
+  - 非同期で待機するため、別ページに遷移した場合動作を止めるために`AbortController`を使用する必要があります。
+- Conditional UIを使用するには、`navigator.credentials.get`の引数のObjectで`mediation`プロパティを`conditional`にして、Input要素の`autocomplete`属性に`webauthn`を追加します。`autocomplete`は一緒に`password`か`username`がついている必要があります。
 
-## Deploy on Vercel
+### ボタンを使用したログイン
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- ボタンを押すとWebAuthnのAPIが発動します。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## LICENSE
+
+[MIT](./LICENSE)

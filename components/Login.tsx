@@ -6,40 +6,19 @@ import {
 import React from "react";
 
 export const Login = () => {
-  const [challenge, setChallenge] =
-    React.useState<CredentialRequestOptions | null>(null);
   const toast = useToast();
 
-  React.useEffect(() => {
-    if (!challenge) {
-      fetch("http://localhost:1323/begin_login", {
-        method: "GET",
-        mode: "cors",
-        credentials: "include",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const credentialRequest = parseRequestOptionsFromJSON(data);
-          setChallenge(credentialRequest);
-        })
-        .catch((err) => {
-          if (err instanceof Error) {
-            toast({
-              title: "Error",
-              description: err.message,
-              status: "error",
-            });
-          }
-        });
-    }
-  }, []);
-
   const handleLogin = async () => {
-    if (!challenge) return;
+    const challenge = await fetch("http://localhost:1323/begin_login", {
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
+    });
+    let data = parseRequestOptionsFromJSON(await challenge.json());
 
     let credential: Credential;
     try {
-      credential = await get(challenge);
+      credential = await get(data);
     } catch (e) {
       if (e instanceof Error) {
         toast({
