@@ -1,3 +1,18 @@
-import { LoginAutoComlete } from "@/components/LoginAutoComlete";
+import dynamic from "next/dynamic";
+const LoginAutoComlete = dynamic(
+  () =>
+    import("@/components/LoginAutoComplete").then(
+      (modules) => modules.LoginAutoComplete
+    ),
+  { ssr: false }
+);
 
-export default LoginAutoComlete;
+const AutoLogin = () => {
+  return (
+    <>
+      <LoginAutoComlete />
+    </>
+  );
+};
+
+export default AutoLogin;
