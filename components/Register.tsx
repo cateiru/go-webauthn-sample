@@ -1,9 +1,20 @@
 import React from "react";
-import { Box, Button, Center, Input, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Heading,
+  Input,
+  Link,
+  ListItem,
+  UnorderedList,
+  useToast,
+} from "@chakra-ui/react";
 import {
   create,
   parseCreationOptionsFromJSON,
 } from "@github/webauthn-json/browser-ponyfill";
+import NextLink from "next/link";
 
 export const Register = () => {
   const toast = useToast();
@@ -81,6 +92,7 @@ export const Register = () => {
   return (
     <Center h="100vh">
       <Box>
+        <Heading>WebAuthn を登録</Heading>
         <Input
           placeholder="Username"
           defaultValue={name}
@@ -94,6 +106,18 @@ export const Register = () => {
         >
           Registered WebAuthn
         </Button>
+        <UnorderedList mt="1rem">
+          <ListItem>
+            <Link href="/login" as={NextLink}>
+              ボタンでログイン
+            </Link>
+          </ListItem>
+          <ListItem>
+            <Link href="/login_auto" as={NextLink}>
+              Conditional UIでログイン
+            </Link>
+          </ListItem>
+        </UnorderedList>
       </Box>
     </Center>
   );

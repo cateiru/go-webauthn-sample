@@ -100,8 +100,8 @@ export const LoginAutoComplete = () => {
         return;
       }
     };
-    f();
     setRun(false);
+    f();
 
     return () => {
       // AbortControllerを使って、WebAuthnの処理を中断する
